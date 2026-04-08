@@ -1,0 +1,153 @@
+# Run with images from Docker Hub (build & push once with push-to-dockerhub.ps1).
+#   $env:DOCKERHUB_USER = "tonhubdocker"
+#   docker compose -f docker-compose.hub.yml pull
+#   docker compose -f docker-compose.hub.yml up -d
+#
+# Requires the same .env files as docker-compose.yml (auth/.env, tickets/.env, ...).
+
+services:
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'mongosh --quiet --eval "quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)"',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 8
+      start_period: 30s
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 15s
+      retries: 8
+      start_period: 50s
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
+  auth:
+    image: ${DOCKERHUB_USER}/micro-app-auth:${IMAGE_TAG:-latest}
+    container_name: auth
+    ports:
+      - "3001:3000"
+    env_file:
+      - ./auth/.env
+    environment:
+      PORT: "3000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  tickets:
+    image: ${DOCKERHUB_USER}/micro-app-tickets:${IMAGE_TAG:-latest}
+    container_name: tickets
+    ports:
+      - "3002:3000"
+    env_file:
+      - ./tickets/.env
+    environment:
+      PORT: "3000"
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  orders:
+    image: ${DOCKERHUB_USER}/micro-app-orders:${IMAGE_TAG:-latest}
+    container_name: orders
+    ports:
+      - "3003:3000"
+    env_file:
+      - ./orders/.env
+    environment:
+      PORT: "3000"
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  payments:
+    image: ${DOCKERHUB_USER}/micro-app-payments:${IMAGE_TAG:-latest}
+    container_name: payments
+    ports:
+      - "3004:3000"
+    env_file:
+      - ./payments/.env
+    environment:
+      PORT: "3000"
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  expiration:
+    image: ${DOCKERHUB_USER}/micro-app-expiration:${IMAGE_TAG:-latest}
+    container_name: expiration
+    ports:
+      - "3005:3000"
+    env_file:
+      - ./expiration/.env
+    environment:
+      PORT: "3000"
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      REDIS_HOST: redis
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  client:
+    image: ${DOCKERHUB_USER}/micro-app-client:${IMAGE_TAG:-latest}
+    container_name: client
+    ports:
+      - "4000:80"
+    depends_on:
+      - auth
+      - tickets
+      - orders
+      - payments
+      - expiration
+    restart: unless-stopped
+
+volumes:
+  mongo_data:

@@ -1,0 +1,5 @@
+# Images from Docker Hub — set DOCKERHUB_USER then pull/up.
+# 1) Sur la machine de build: micro-app-clean-master\push-to-dockerhub.ps1
+# 2) Ici: $env:DOCKERHUB_USER="tonuser"; docker compose -f docker-compose.hub.yml up -d
+include:
+  - path: ./micro-app-clean-master/docker-compose.hub.yml

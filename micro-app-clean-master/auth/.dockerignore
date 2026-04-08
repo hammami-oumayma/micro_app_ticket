@@ -1,0 +1,37 @@
+node_modules
+rest-client.http
+# Keep build context small and avoid leaking local secrets into the image layer cache.
+.git
+.github
+**/.git
+
+# Dependencies (installed fresh in Dockerfile)
+**/node_modules
+
+# Build outputs
+**/dist
+**/build
+
+# Local env and secrets (never copy into image)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# Test files (not needed in production)
+src/test
+**/__test__
+**/*.test.ts
+**/*.spec.ts
+coverage
+.nyc_output
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
+*.md
+.gitignore
+.dockerignore

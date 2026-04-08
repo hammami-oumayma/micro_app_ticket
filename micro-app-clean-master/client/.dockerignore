@@ -1,0 +1,40 @@
+# Keep build context small and avoid leaking local secrets into the image layer cache.
+.git
+.github
+**/.git
+
+# Dependencies (installed fresh in Dockerfile)
+**/node_modules
+
+# Build outputs (React builds fresh in Docker)
+build
+
+# Local env and secrets (never copy into image)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.p12
+
+# Test files
+coverage
+**/*.test.js
+**/*.test.tsx
+**/*.spec.js
+**/*.spec.tsx
+
+# Nginx config is needed - do NOT exclude it
+# nginx.conf must be copied into the image
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
+*.md
+.gitignore
+.dockerignore

@@ -1,0 +1,4 @@
+# Lance Docker depuis CE dossier (Desktop\micro-app-clean-master).
+# Le vrai projet est dans micro-app-clean-master/.
+include:
+  - path: ./micro-app-clean-master/docker-compose.yml
