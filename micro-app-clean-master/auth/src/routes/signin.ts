@@ -1,26 +1,17 @@
 import express, { Request, Response } from "express";
-import { body } from "express-validator";
 import { validateRequest, BadRequestError } from "@eftickets/common";
 import { Password } from "../services/password";
 import { User } from "../models/user";
 import { UserDocMethod } from "../types/IUser";
 import { isAdminEmail } from "../services/admin";
+import { getTokenCookieOptions } from "../services/cookie-options";
+import { emailField, passwordSigninField } from "../validators/auth-fields";
 
 const router = express.Router();
 
 router.post(
   "/api/users/signin",
-  [
-    body("email")
-      .trim()
-      .normalizeEmail()
-      .isEmail()
-      .withMessage("Email must be valid"),
-    body("password")
-      .trim()
-      .notEmpty()
-      .withMessage("You must supply a password!"),
-  ],
+  [emailField(), passwordSigninField()],
   validateRequest,
   async (req: Request, res: Response) => {
     const email = String(req.body.email || "").trim().toLowerCase();
@@ -44,23 +35,13 @@ router.post(
   }
 );
 
-interface TokenOptions {
-  maxAge: number;
-  httpOnly: boolean;
-  secure?: boolean;
-}
-
 const sendTokenResponse = async (
   user: UserDocMethod,
   codeStatus: number,
   res: any
 ) => {
   const token = await user.getJwtToken();
-  const options: TokenOptions = { maxAge: 60 * 60 * 1000, httpOnly: true };
-
-  if (process.env.NODE_ENV === "production") {
-    options.secure = true;
-  }
+  const options = getTokenCookieOptions();
   res.status(codeStatus).cookie("token", token, options).send({
     id: user.id,
     email: user.email,

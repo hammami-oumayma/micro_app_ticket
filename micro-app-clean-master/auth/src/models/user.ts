@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
+    timestamps: true,
     toJSON: {
       transform(doc, ret: any) {
         ret.id = ret._id.toString(); // fix: convert ObjectId to string

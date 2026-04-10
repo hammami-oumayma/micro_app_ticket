@@ -54,14 +54,19 @@ const Header = () => {
     ? user?.isAdmin
       ? [
           { label: "Accueil", to: "/" },
-          { label: "Modération billets", to: "/admin/tickets" },
-          { label: "Stats admin", to: "/admin/stats" },
+          { label: "Billets", to: "/admin/tickets" },
+          { label: "Utilisateurs", to: "/admin/users" },
+          { label: "Commandes", to: "/admin/manage-orders" },
+          { label: "Paiements", to: "/admin/manage-payments" },
+          { label: "Scan entrée", to: "/admin/entry-scan" },
+          { label: "Stats", to: "/admin/stats" },
           { label: "Profil", to: "/profile" },
           { label: "Déconnexion", action: "logout" },
         ]
       : [
           { label: "Accueil", to: "/" },
-          { label: "Mes commandes", to: "/admin/orders" },
+          { label: "Mes commandes", to: "/mes-commandes" },
+          { label: "Mes billets", to: "/my-tickets" },
           { label: "Vendre un billet", to: "/create/ticket" },
           { label: "Profil", to: "/profile" },
           { label: "Déconnexion", action: "logout" },
@@ -181,8 +186,12 @@ const Header = () => {
             ) : (
               user?.isAdmin ? (
                 <>
-                  <NavLink to="/admin/tickets">Modération billets</NavLink>
-                  <NavLink to="/admin/stats">Stats admin</NavLink>
+                  <NavLink to="/admin/tickets">Billets</NavLink>
+                  <NavLink to="/admin/users">Utilisateurs</NavLink>
+                  <NavLink to="/admin/manage-orders">Commandes</NavLink>
+                  <NavLink to="/admin/manage-payments">Paiements</NavLink>
+                  <NavLink to="/admin/entry-scan">Scan entrée</NavLink>
+                  <NavLink to="/admin/stats">Stats</NavLink>
                   <NavLink to="/profile">Profil</NavLink>
                   <Button
                     onClick={logOutMethod}
@@ -193,7 +202,8 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <NavLink to="/admin/orders">Mes commandes</NavLink>
+                  <NavLink to="/mes-commandes">Mes commandes</NavLink>
+                  <NavLink to="/my-tickets">Mes billets</NavLink>
                   <NavLink to="/create/ticket">Vendre un billet</NavLink>
                   <NavLink to="/profile">Profil</NavLink>
                   <Button

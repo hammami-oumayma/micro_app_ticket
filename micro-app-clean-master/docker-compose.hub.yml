@@ -109,6 +109,7 @@ services:
     environment:
       PORT: "3000"
       RABBITMQ_URL: amqp://rabbitmq:5672
+      ALLOW_MANUAL_PAYMENT: "true"
     depends_on:
       mongo:
         condition: service_healthy

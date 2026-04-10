@@ -14,6 +14,8 @@ let mongo: any;
 beforeAll(async () => {
   process.env.JWT_KEY = "asdfasdf";
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  // Même email que global.signin() : création auto-approuvée + événement Rabbit (comportement admin).
+  process.env.ADMIN_EMAIL = "test@test.com";
 
   const mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();

@@ -20,37 +20,30 @@ import useFetchData from "../../hooks/useFetchData";
 import { alpha } from "@mui/material/styles";
 
 const Home = () => {
-  const { data, loading, error, refetch } = useFetchData("/api/tickets");
   const [query, setQuery] = useState("");
   const [priceSort, setPriceSort] = useState("none");
   const [category, setCategory] = useState("all");
 
+  const ticketsUrl = useMemo(() => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("q", query.trim());
+    if (category !== "all") params.set("category", category);
+    if (priceSort === "asc") params.set("sort", "price_asc");
+    else if (priceSort === "desc") params.set("sort", "price_desc");
+    const qs = params.toString();
+    return `/api/tickets${qs ? `?${qs}` : ""}`;
+  }, [query, category, priceSort]);
+
+  const { data, loading, error, refetch } = useFetchData(ticketsUrl);
+  const { data: categoryRows } = useFetchData("/api/tickets/categories");
+
   const categories = useMemo(() => {
-    const list = Array.isArray(data) ? data : [];
-    const set = new Set(
-      list.map((t) => (t.category || "Général").trim()).filter(Boolean)
-    );
-    return Array.from(set).sort();
-  }, [data]);
+    return Array.isArray(categoryRows) ? categoryRows : [];
+  }, [categoryRows]);
 
   const filtered = useMemo(() => {
-    let list = Array.isArray(data) ? [...data] : [];
-    const q = query.trim().toLowerCase();
-    if (q) {
-      list = list.filter((t) => (t.title || "").toLowerCase().includes(q));
-    }
-    if (category !== "all") {
-      list = list.filter(
-        (t) => (t.category || "Général").trim() === category
-      );
-    }
-    if (priceSort === "asc") {
-      list.sort((a, b) => Number(a.price) - Number(b.price));
-    } else if (priceSort === "desc") {
-      list.sort((a, b) => Number(b.price) - Number(a.price));
-    }
-    return list;
-  }, [data, query, priceSort, category]);
+    return Array.isArray(data) ? data : [];
+  }, [data]);
 
   return (
     <Layout>
@@ -80,9 +73,8 @@ const Home = () => {
                 Réservez vos billets en quelques clics
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                Découvrez les événements disponibles. Commande sécurisée, expiration
-                automatique du panier si non payé, intégration paiement — idéal pour
-                démontrer une architecture microservices lors de votre PFE.
+                Découvrez les événements disponibles : commande sécurisée, expiration
+                automatique de la réservation si non payée, et paiement intégré.
               </Typography>
             </Stack>
 

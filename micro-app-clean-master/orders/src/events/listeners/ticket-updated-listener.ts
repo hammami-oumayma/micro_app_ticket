@@ -12,10 +12,29 @@ export class TicketUpdatedListener extends Consumer<TicketUpdatedEvent> {
     venue?: string;
     eventDate?: string;
   }) {
-    const ticket = await Ticket.findByEvent(data);
+    let ticket = await Ticket.findByEvent(data);
 
     if (!ticket) {
-      throw new Error("Ticket not found");
+      const existing = await Ticket.findById(data.id);
+      if (!existing) {
+        console.warn(
+          "[TicketUpdatedListener] Ticket absent in orders DB; skip",
+          data.id
+        );
+        return;
+      }
+      if (existing.version >= data.version) {
+        return;
+      }
+      if (existing.version !== data.version - 1) {
+        console.warn(
+          "[TicketUpdatedListener] Version gap; skip",
+          data.id,
+          { current: existing.version, event: data.version }
+        );
+        return;
+      }
+      ticket = existing;
     }
 
     const { title, price, category, venue, eventDate } = data;

@@ -8,6 +8,7 @@ import {
   isAuthenticated,
 } from "@eftickets/common";
 import { createChargeRouter } from "./routes/new";
+import { adminPaymentListRouter } from "./routes/admin-list";
 
 const app = express();
 app.set("trust proxy", true);
@@ -16,6 +17,7 @@ app.use(cookieParser());
 
 app.use(isAuthenticated);
 app.use(createChargeRouter);
+app.use(adminPaymentListRouter);
 
 app.all("*", async (req, res) => {
   throw new NotFoundError();

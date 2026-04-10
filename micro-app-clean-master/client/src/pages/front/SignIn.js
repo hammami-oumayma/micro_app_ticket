@@ -56,11 +56,22 @@ const SignIn = () => {
       };
       const value = await fetch("/api/users/signin", options);
 
-      const res = await value.json();
-      if (res && res?.errors) {
-        const errorResponse = res?.errors?.map((err) => err.message)?.join(" ");
-        return toast.error(errorResponse || "Email ou mot de passe incorrect.");
+      let res;
+      try {
+        res = await value.json();
+      } catch {
+        toast.error("Réponse serveur invalide.");
+        return;
       }
+
+      if (!value.ok) {
+        const errorResponse =
+          res?.errors?.map((err) => err.message)?.join(" ") ||
+          "Email ou mot de passe incorrect.";
+        toast.error(errorResponse);
+        return;
+      }
+
       login(res);
 
       setUser({ email: "", password: "" });

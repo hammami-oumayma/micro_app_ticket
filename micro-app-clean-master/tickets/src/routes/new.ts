@@ -22,10 +22,12 @@ router.post(
     body("category").optional().isString().isLength({ max: 80 }),
     body("venue").optional().isString().isLength({ max: 120 }),
     body("eventDate").optional({ values: "falsy" }).isISO8601(),
+    body("lat").optional().isFloat({ min: -90, max: 90 }),
+    body("lng").optional().isFloat({ min: -180, max: 180 }),
   ],
   validateRequest,
   async (req: Request, res: Response) => {
-    const { title, price, category, venue, eventDate } = req.body;
+    const { title, price, category, venue, eventDate, lat, lng } = req.body;
     const approvalStatus = isAdminEmail(req.currentUser?.email)
       ? "approved"
       : "pending";
@@ -38,6 +40,8 @@ router.post(
       venue: venue?.trim() || "",
       eventDate: eventDate ? new Date(eventDate) : undefined,
       approvalStatus,
+      lat: lat !== undefined && lat !== null ? Number(lat) : undefined,
+      lng: lng !== undefined && lng !== null ? Number(lng) : undefined,
     });
     await ticket.save();
 

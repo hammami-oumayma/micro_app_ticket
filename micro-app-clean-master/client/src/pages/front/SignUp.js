@@ -55,15 +55,25 @@ const SignUp = () => {
       };
       const value = await fetch("/api/users/signup", options);
 
-      const res = await value.json();
-      if (res && res?.errors) {
-        const errorResponse = res?.errors?.map((err) => err.message)?.join(" ");
-        return toast.error(errorResponse || "Impossible de créer le compte.");
+      let res;
+      try {
+        res = await value.json();
+      } catch {
+        toast.error("Réponse serveur invalide.");
+        return;
+      }
+
+      if (!value.ok) {
+        const errorResponse =
+          res?.errors?.map((err) => err.message)?.join(" ") ||
+          "Impossible de créer le compte.";
+        toast.error(errorResponse);
+        return;
       }
 
       setUser({ email: "", password: "" });
 
-      toast("Sign Up successfully!");
+      toast.success("Compte créé !");
     } catch (error) {
       console.log("Error", error);
     }

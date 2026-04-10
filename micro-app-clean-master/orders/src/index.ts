@@ -7,6 +7,7 @@ import { TicketCreatedListener } from "./events/listeners/ticket-created-listene
 import { TicketUpdatedListener } from "./events/listeners/ticket-updated-listener";
 import { ExpirationCompleteListener } from "./events/listeners/expiration-complete-listener";
 import { PaymentCreatedListener } from "./events/listeners/payment-created-listener";
+import { seedDefaultPromos } from "./utils/seed-promos";
 async function start() {
   if (!process.env.JWT_KEY) {
     throw new Error("JWT_KEY must be defined");
@@ -35,6 +36,7 @@ async function start() {
 
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDb");
+    await seedDefaultPromos();
   } catch (err) {
     console.error(err);
   }

@@ -7,6 +7,7 @@ interface OrderAttrs {
   version: number;
   userId: string;
   price: number;
+  payableAmount?: number;
   status: OrderStatus;
 }
 
@@ -14,6 +15,7 @@ interface OrderDoc extends mongoose.Document {
   version: number;
   userId: string;
   price: number;
+  payableAmount?: number;
   status: OrderStatus;
 }
 
@@ -30,6 +32,9 @@ const orderSchema = new mongoose.Schema(
     price: {
       type: Number,
       required: true,
+    },
+    payableAmount: {
+      type: Number,
     },
     status: {
       type: String,
@@ -54,6 +59,7 @@ orderSchema.statics.build = (attrs: OrderAttrs) => {
     _id: attrs.id,
     version: attrs.version,
     price: attrs.price,
+    payableAmount: attrs.payableAmount ?? attrs.price,
     userId: attrs.userId,
     status: attrs.status,
   });

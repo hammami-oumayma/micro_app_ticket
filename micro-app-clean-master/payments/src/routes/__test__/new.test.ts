@@ -24,6 +24,7 @@ it("returns a 401 when purchasing an order that doesnt belong to the user", asyn
     userId: new mongoose.Types.ObjectId().toHexString(),
     version: 0,
     price: 20,
+    payableAmount: 20,
     status: OrderStatus.Created,
   });
   await order.save();
@@ -46,6 +47,7 @@ it("returns a 400 when purchasing a cancelled order", async () => {
     userId,
     version: 0,
     price: 20,
+    payableAmount: 20,
     status: OrderStatus.Cancelled,
   });
   await order.save();
@@ -93,6 +95,7 @@ it("returns a 201 with valid inputs", async () => {
     userId,
     version: 0,
     price,
+    payableAmount: price,
     status: OrderStatus.Created,
   });
   await order.save();

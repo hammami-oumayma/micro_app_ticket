@@ -24,6 +24,8 @@ router.put(
     body("category").optional().isString().isLength({ max: 80 }),
     body("venue").optional().isString().isLength({ max: 120 }),
     body("eventDate").optional({ values: "falsy" }).isISO8601(),
+    body("lat").optional().isFloat({ min: -90, max: 90 }),
+    body("lng").optional().isFloat({ min: -180, max: 180 }),
   ],
   validateRequest,
   async (req: Request, res: Response) => {
@@ -45,12 +47,21 @@ router.put(
       ? new Date(req.body.eventDate)
       : undefined;
 
+    const { lat, lng } = req.body;
     ticket.set({
       title: req.body.title,
       price: req.body.price,
       category: req.body.category?.trim() || ticket.category,
       venue: req.body.venue?.trim() ?? ticket.venue,
       eventDate: eventDate ?? ticket.eventDate,
+      lat:
+        lat !== undefined && lat !== null && lat !== ""
+          ? Number(lat)
+          : ticket.lat,
+      lng:
+        lng !== undefined && lng !== null && lng !== ""
+          ? Number(lng)
+          : ticket.lng,
     });
     await ticket.save();
     new TicketUpdatedPublisher(rabbitWrapper.client).publish({

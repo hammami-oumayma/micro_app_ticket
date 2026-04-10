@@ -10,6 +10,8 @@ const CreateTicket = () => {
     category: "Général",
     venue: "",
     eventDate: "",
+    lat: "",
+    lng: "",
   });
   const [error, setError] = useState(false);
 
@@ -38,6 +40,14 @@ const CreateTicket = () => {
           payload.eventDate = d.toISOString();
         }
       }
+      if (ticket.lat !== "" && ticket.lng !== "") {
+        const la = Number(ticket.lat);
+        const lo = Number(ticket.lng);
+        if (!Number.isNaN(la) && !Number.isNaN(lo)) {
+          payload.lat = la;
+          payload.lng = lo;
+        }
+      }
       const options = {
         method: "POST",
         body: JSON.stringify(payload),
@@ -60,6 +70,8 @@ const CreateTicket = () => {
         category: "Général",
         venue: "",
         eventDate: "",
+        lat: "",
+        lng: "",
       });
 
       toast.success("Billet créé !");
@@ -76,7 +88,7 @@ const CreateTicket = () => {
             Créer un billet
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 3 }}>
-            Titre, prix (0 = gratuit), catégorie, lieu et date d&apos;événement optionnels.
+            Titre, prix (0 = gratuit), catégorie, lieu, date d&apos;événement. Latitude / longitude (optionnel) pour afficher la carte (ex. Tunis ≈ 36.81, 10.18).
           </Typography>
           <Paper sx={{ p: 3, borderRadius: 2 }}>
             {error ? (
@@ -139,6 +151,28 @@ const CreateTicket = () => {
                   value={ticket.eventDate}
                   onChange={handleChange}
                 />
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                  <TextField
+                    fullWidth
+                    name="lat"
+                    label="Latitude (carte)"
+                    type="number"
+                    inputProps={{ step: "any" }}
+                    placeholder="36.8065"
+                    value={ticket.lat}
+                    onChange={handleChange}
+                  />
+                  <TextField
+                    fullWidth
+                    name="lng"
+                    label="Longitude (carte)"
+                    type="number"
+                    inputProps={{ step: "any" }}
+                    placeholder="10.1815"
+                    value={ticket.lng}
+                    onChange={handleChange}
+                  />
+                </Stack>
                 <Button type="submit" variant="contained" size="large">
                   Publier le billet
                 </Button>

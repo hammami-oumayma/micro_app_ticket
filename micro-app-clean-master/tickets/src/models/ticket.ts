@@ -9,6 +9,8 @@ interface TicketAttrs {
   venue?: string;
   eventDate?: Date;
   approvalStatus?: "pending" | "approved" | "rejected";
+  lat?: number;
+  lng?: number;
 }
 
 interface TicketDoc extends mongoose.Document {
@@ -21,6 +23,8 @@ interface TicketDoc extends mongoose.Document {
   venue: string;
   eventDate?: Date;
   approvalStatus: "pending" | "approved" | "rejected";
+  lat?: number;
+  lng?: number;
 }
 
 interface TicketModel extends mongoose.Model<TicketDoc> {
@@ -60,6 +64,16 @@ const ticketSchema = new mongoose.Schema(
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
+    },
+    lat: {
+      type: Number,
+      min: -90,
+      max: 90,
+    },
+    lng: {
+      type: Number,
+      min: -180,
+      max: 180,
     },
   },
   {

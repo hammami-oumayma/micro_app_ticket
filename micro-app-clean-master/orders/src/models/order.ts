@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { randomBytes } from "crypto";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 import { OrderStatus } from "@eftickets/common";
 import { TicketDoc } from "./ticket";
@@ -9,6 +10,9 @@ interface OrderAttrs {
   status: OrderStatus;
   expiresAt: Date;
   ticket: TicketDoc;
+  payableAmount: number;
+  promoCode?: string;
+  discountPercent?: number;
 }
 
 interface OrderDoc extends mongoose.Document {
@@ -16,6 +20,11 @@ interface OrderDoc extends mongoose.Document {
   status: OrderStatus;
   expiresAt: Date;
   ticket: TicketDoc;
+  payableAmount?: number;
+  promoCode?: string;
+  discountPercent?: number;
+  entryCode?: string;
+  entryScannedAt?: Date;
   version: number;
 }
 
@@ -42,12 +51,31 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ticket",
     },
+    entryCode: {
+      type: String,
+      default: () => randomBytes(6).toString("hex").toUpperCase(),
+    },
+    payableAmount: {
+      type: Number,
+      min: 0,
+    },
+    promoCode: {
+      type: String,
+    },
+    discountPercent: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+    entryScannedAt: {
+      type: Date,
+    },
   },
    {
     toJSON: {
-      transform(doc, ret: any) {
-      ret.id = ret._id;
-        delete ret?._id;
+      transform(_doc: mongoose.Document, ret: Record<string, unknown>) {
+        ret.id = ret._id;
+        delete ret._id;
       },
     },
   }

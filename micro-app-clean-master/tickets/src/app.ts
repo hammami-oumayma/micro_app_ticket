@@ -9,6 +9,7 @@ import {
   isAuthenticated,
 } from "@eftickets/common";
 import { createTicketRouter } from "./routes/new";
+import { ticketMetaRouter } from "./routes/meta";
 import { showTicketRouter } from "./routes/show";
 import { indexTicketRouter } from "./routes/index";
 import { updateTicketRouter } from "./routes/update";
@@ -21,6 +22,7 @@ app.use(cookieParser());
 
 app.use(isAuthenticated);
 app.use(createTicketRouter);
+app.use(ticketMetaRouter);
 app.use(showTicketRouter);
 app.use(indexTicketRouter);
 app.use(updateTicketRouter);

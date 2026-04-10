@@ -7,6 +7,7 @@ import {
 
 import { Order } from "../../models/order";
 import { OrderCancelledPublisher } from "../publishers/order-cancelled-publisher";
+import { sendOrderPaidEmail } from "../../utils/mail";
 
 export class ExpirationCompleteListener extends Consumer<ExpirationCompleteEvent> {
   readonly exchangeName = ExchangeNames.ExpirationComplete;
@@ -30,6 +31,14 @@ export class ExpirationCompleteListener extends Consumer<ExpirationCompleteEvent
       status: OrderStatus.Cancelled,
     });
     await order.save();
+    try {
+      await sendOrderPaidEmail({
+        subject: "Reservation expired — unpaid order cancelled",
+        html: `<p>Your reservation timed out (not paid within the window).</p><p>Order <code>${order.id}</code> was cancelled.</p>`,
+      });
+    } catch (err) {
+      console.error("notify mail (expiration) failed", err);
+    }
     await new OrderCancelledPublisher(this.channel).publish({
       id: order.id,
       version: order.version,

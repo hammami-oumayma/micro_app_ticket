@@ -17,6 +17,11 @@ import PaymentCancel from "./pages/front/PaymentCancel";
 import Profile from "./pages/front/Profile";
 import AdminStats from "./pages/admin/AdminStats";
 import TicketModeration from "./pages/admin/TicketModeration";
+import MyTickets from "./pages/front/MyTickets";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminPayments from "./pages/admin/AdminPayments";
+import AdminEntryScan from "./pages/admin/AdminEntryScan";
 
 const App = () => {
   return (
@@ -33,6 +38,22 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mes-commandes"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-tickets"
+            element={
+              <ProtectedRoute>
+                <MyTickets />
               </ProtectedRoute>
             }
           />
@@ -81,6 +102,38 @@ const App = () => {
             element={
               <ProtectedRoute adminOnly>
                 <TicketModeration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/manage-orders"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminOrders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/manage-payments"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminPayments />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/entry-scan"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminEntryScan />
               </ProtectedRoute>
             }
           />

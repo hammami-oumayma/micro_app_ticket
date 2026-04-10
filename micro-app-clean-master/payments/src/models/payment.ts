@@ -1,13 +1,19 @@
 import mongoose from 'mongoose';
 
+export type PaymentModeType = "stripe" | "manual" | "cash_on_delivery";
+
 interface PaymentAttrs {
   orderId: string;
   stripeId: string;
+  paymentMode?: PaymentModeType;
+  amount?: number;
 }
 
 interface PaymentDoc extends mongoose.Document {
   orderId: string;
   stripeId: string;
+  paymentMode: PaymentModeType;
+  amount?: number;
 }
 
 interface PaymentModel extends mongoose.Model<PaymentDoc> {
@@ -23,6 +29,15 @@ const paymentSchema = new mongoose.Schema(
     stripeId: {
       required: true,
       type: String,
+    },
+    paymentMode: {
+      type: String,
+      enum: ["stripe", "manual", "cash_on_delivery"],
+      default: "stripe",
+    },
+    amount: {
+      type: Number,
+      min: 0,
     },
   },
   {

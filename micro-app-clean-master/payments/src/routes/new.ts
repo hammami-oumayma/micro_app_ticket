@@ -22,12 +22,13 @@ router.post(
   [
     body("orderId").not().isEmpty(),
     body("title").not().isEmpty(),
-    body("price").not().isEmpty(),
-    body("paymentMode").optional().isIn(["stripe", "manual"]),
+    body("price").optional(),
+    body("paymentMode").optional().isIn(["stripe", "manual", "cash_on_delivery"]),
   ],
   validateRequest,
   async (req: Request, res: Response) => {
-    const { orderId, title, price, paymentMode } = req.body;
+    const { orderId, title, paymentMode: rawMode } = req.body;
+    const paymentMode = rawMode || "stripe";
 
     const order = await Order.findById(orderId);
 
@@ -41,10 +42,32 @@ router.post(
       throw new BadRequestError("Cannot pay for an cancelled order");
     }
 
+    const amountNum = Number(
+      order.payableAmount !== undefined && order.payableAmount !== null
+        ? order.payableAmount
+        : order.price
+    );
+    if (!Number.isFinite(amountNum) || amountNum < 0) {
+      throw new BadRequestError("Invalid order amount");
+    }
+
+    const allowManualPayment =
+      process.env.NODE_ENV !== "production" ||
+      process.env.ALLOW_MANUAL_PAYMENT === "true";
+
+    if (paymentMode === "cash_on_delivery") {
+      throw new BadRequestError("Cash on delivery must be arranged offline");
+    }
+
     if (paymentMode === "manual") {
+      if (!allowManualPayment) {
+        throw new BadRequestError("Manual payment is disabled");
+      }
       const payment = Payment.build({
         orderId,
         stripeId: `manual-${Date.now()}`,
+        paymentMode: "manual",
+        amount: amountNum,
       });
       await payment.save();
       new PaymentCreatedPublisher(rabbitWrapper.client).publish({
@@ -65,7 +88,7 @@ router.post(
             product_data: {
               name: title,
             },
-            unit_amount: Number(price) * 100,
+            unit_amount: Math.round(amountNum * 100),
           },
           quantity: 1,
         },
@@ -79,6 +102,8 @@ router.post(
     const payment = Payment.build({
       orderId,
       stripeId: session.id,
+      paymentMode: "stripe",
+      amount: amountNum,
     });
     await payment.save();
     new PaymentCreatedPublisher(rabbitWrapper.client).publish({

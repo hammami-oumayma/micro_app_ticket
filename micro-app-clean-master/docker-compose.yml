@@ -57,6 +57,8 @@ services:
     environment:
       PORT: "3000"
       JWT_KEY: supersecretjwtkey
+      # Email(s) admin (surcharge le .env si besoin — valeur explicite pour éviter les soucis Windows / env vide)
+      ADMIN_EMAIL: "admin@example.com"
     depends_on:
       mongo:
         condition: service_healthy
@@ -73,6 +75,7 @@ services:
       PORT: "3000"
       JWT_KEY: supersecretjwtkey
       RABBITMQ_URL: amqp://rabbitmq:5672
+      ADMIN_EMAIL: "admin@example.com"
     depends_on:
       mongo:
         condition: service_healthy
@@ -91,6 +94,7 @@ services:
       PORT: "3000"
       JWT_KEY: supersecretjwtkey
       RABBITMQ_URL: amqp://rabbitmq:5672
+      ADMIN_EMAIL: "admin@example.com"
     depends_on:
       mongo:
         condition: service_healthy
@@ -109,6 +113,8 @@ services:
       PORT: "3000"
       JWT_KEY: supersecretjwtkey
       RABBITMQ_URL: amqp://rabbitmq:5672
+      ALLOW_MANUAL_PAYMENT: "true"
+      ADMIN_EMAIL: "admin@example.com"
     depends_on:
       mongo:
         condition: service_healthy
