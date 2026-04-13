@@ -7,7 +7,32 @@ pipeline {
         GITHUB_REPO = 'https://github.com/hammami-oumayma/micro_app_ticket.git'
     }
 
-    
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo '📥 Cloning repository...'
+                git branch: 'main',
+                    url: "${GITHUB_REPO}"
+            }
+        }
+
+        stage('Install & Test') {
+            steps {
+                echo '🧪 Installing and testing microservices...'
+                sh '''
+                    for service in orders payments tickets expiration auth; do
+                        if [ -f "$service/package.json" ]; then
+                            echo "Testing $service..."
+                            cd $service
+                            npm install
+                            npm test --if-present || true
+                            cd ..
+                        fi
+                    done
+                '''
+            }
+        }
 
         stage('OWASP Dependency Check') {
             steps {
@@ -33,7 +58,7 @@ pipeline {
 
         stage('Trivy Scan') {
             steps {
-                echo '🔒 Scanning with Trivy...'
+                echo '🔒 Scanning images with Trivy...'
                 sh '''
                     for service in auth client orders payments tickets expiration; do
                         trivy image --exit-code 0 --severity HIGH,CRITICAL \
