@@ -6,6 +6,23 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         GITHUB_REPO = 'https://github.com/hammami-oumayma/micro_app_ticket.git'
     }
+stage('Trivy Scan') {
+    steps {
+        echo '🔒 Scanning with Trivy...'
+        sh '''
+            trivy image --download-db-only || true
+            for service in auth client orders payments tickets expiration; do
+                docker images | grep -q "${DOCKERHUB_USERNAME}/$service" && \
+                trivy image \
+                    --exit-code 0 \
+                    --severity HIGH,CRITICAL \
+                    --timeout 10m \
+                    --skip-db-update \
+                    ${DOCKERHUB_USERNAME}/$service:latest || true
+            done
+        '''
+    }
+}
 
     stages {
 
