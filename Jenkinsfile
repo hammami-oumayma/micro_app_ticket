@@ -5,6 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         GITHUB_REPO = 'https://github.com/hammami-oumayma/micro_app_ticket.git'
         SONAR_HOST_URL = 'http://localhost:9000'
+        SONAR_TOKEN = 'sqp_79f5220fb795094ee7f12be68267eb1d94483634'
     }
     stages {
 
@@ -12,6 +13,18 @@ pipeline {
             steps {
                 git branch: 'master',
                     url: "${GITHUB_REPO}"
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                sh '''
+                    sonar-scanner \
+                        -Dsonar.projectKey=micro-app \
+                        -Dsonar.sources=./micro-app-clean-master \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.token=${SONAR_TOKEN} || true
+                '''
             }
         }
 
